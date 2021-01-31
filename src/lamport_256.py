@@ -53,16 +53,11 @@ def verify_signature(msg, sig, pubkey):
 """  Utility functions """
 """"""""""""""""""""""""""
 
-def exportPub(pubkey, filename='pub.key'):
+def exportKey(key, filename):
     with open(filename, 'w') as f:
-        f.writelines(pubkey[0])
-        f.writelines(pubkey[1])
+        f.writelines(key[0])
+        f.writelines(key[1])
 
-
-def exportPriv(privkey, filename='priv.key'):
-    with open(filename, 'w') as f:
-        f.writelines(privkey[0])
-        f.writelines(privkey[1])
 
 def parseKey(filename):
     key = [[],[]]
