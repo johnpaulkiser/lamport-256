@@ -1,4 +1,5 @@
-![Test module](https://github.com/johnpaulkiser/lamport-256/workflows/Test%20module/badge.svg)
+![tests📋](https://github.com/johnpaulkiser/lamport-256/workflows/Test%20module/badge.svg)
+![push📦 to pypi](https://github.com/johnpaulkiser/lamport-256/workflows/Upload%20Python%20Package/badge.svg)
 
 # lamport-256
 Simple single use Lamport signature scheme in python
