@@ -6,7 +6,7 @@ from hashlib import sha256
 
 class _KeyPair:
 
-    """ _KeyPair is only intended to be used as an internal type """
+    """ _KeyPair is only intended to be used as an internal Type """
 
     def __init__(self, zeropriv, onepriv, zeropub, onepub):
         self.zeropriv = zeropriv
@@ -106,8 +106,8 @@ def parse_key(filename):
 
 
 def parse_key_pair(pub_file, priv_file):
-    priv = parseKey(priv_file)
-    pub = parseKey(pub_file)
+    priv = parse_key(priv_file)
+    pub = parse_key(pub_file)
 
     return  _KeyPair(priv[0], priv[1], pub[0], pub[1])
 
@@ -146,8 +146,6 @@ if __name__ == "__main__":
 
 
     print(priv)
-
-    signature = sign
 
     #keypair = generate_keys()
     #keypair2 = generate_keys()
