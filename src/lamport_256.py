@@ -4,19 +4,36 @@ import secrets
 from hashlib import sha256
 
 
+class _KeyPair:
+
+    """ _KeyPair is only intended to be used as an internal type """
+
+    def __init__(self, zeropriv, onepriv, zeropub, onepub):
+        self.zeropriv = zeropriv
+        self.onepriv  = onepriv 
+        self.zeropub  = zeropub 
+        self.onepub   = onepub  
+
+    @property
+    def priv(self):
+        return [self.zeropriv, self.onepriv]
+
+    @property
+    def pub(self):
+        return [self.zeropub, self.onepub]
+
+
 def generate_keys(filename='keys.txt'):
     """ 
     Generates and returns a public and private key pair
 
     """
-
-    zeropriv = [secrets.token_hex(32) for i in range(256)]
+    zeropriv = [secrets.token_hex(32) for i in range(256)]                      
     onepriv  = [secrets.token_hex(32) for i in range(256)]
     zeropub  = [sha256(block.encode()).hexdigest() for block in zeropriv]
     onepub   = [sha256(block.encode()).hexdigest() for block in onepriv]
 
-    return { 'priv': [zeropriv, onepriv], 'pub': [zeropub, onepub] }
-
+    return _KeyPair(zeropriv, onepriv, zeropub, onepub)
 
 
 def  sign_message(priv, msg):
@@ -53,13 +70,18 @@ def verify_signature(msg, sig, pubkey):
 """  Utility functions """
 """"""""""""""""""""""""""
 
-def exportKey(key, filename):
+def export_key(key, filename):
     with open(filename, 'w') as f:
         f.writelines(key[0])
         f.writelines(key[1])
 
 
-def parseKey(filename):
+def export_key_pair(keypair, pub_file='pub.key', priv_file='priv.key'):
+    export_key(keypair.pub, pub_file)
+    export_key(keypair.priv, priv_file)
+
+
+def parse_key(filename):
     key = [[],[]]
     start = 0
     end = 64  
@@ -81,6 +103,13 @@ def parseKey(filename):
         end += 64
 
     return key
+
+
+def parse_key_pair(pub_file, priv_file):
+    priv = parseKey(priv_file)
+    pub = parseKey(pub_file)
+
+    return  _KeyPair(priv[0], priv[1], pub[0], pub[1])
 
 
 def hex_to_bin_list(hex_string):
@@ -108,11 +137,23 @@ def message_to_hashed_binary(msg):
 """"""""""""""""""""""""""
 
 if __name__ == "__main__":
+
+    
+
+
     keypair = generate_keys()
-    keypair2 = generate_keys()
+    priv = keypair.priv
 
-    message = 'JP'
 
-    sig = sign_message(priv=keypair2['priv'], msg=message)
+    print(priv)
 
-    print(verify_signature(msg='JP', sig=sig, pubkey=keypair2['pub']))
+    signature = sign
+
+    #keypair = generate_keys()
+    #keypair2 = generate_keys()
+
+    #message = 'JP'
+
+    #sig = sign_message(priv=keypair2['priv'], msg=message)
+
+    #print(verify_signature(msg='JP', sig=sig, pubkey=keypair2['pub']))
