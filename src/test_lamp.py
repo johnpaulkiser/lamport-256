@@ -1,7 +1,7 @@
 import unittest
 
 
-import lamp 
+import lamport_256 as lamp 
 from hashlib import sha256
 
 

@@ -6,10 +6,12 @@ with open('README.md', 'r') as f:
 
 setuptools.setup(
     name='lamport-256',
-    version='0.0.1',
+    version='0.0.3',
     author='JP Kiser',
     author_email='johnpaulkiser@gmail.com',
-    description='Simple single use Lamport signature scheme'
+    description='Simple single use Lamport signature scheme',
+    py_modules=["lamport_256"],
+    package_dir={'': 'src'},
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/johnpaulkiser/lamport-256',
