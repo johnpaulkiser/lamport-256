@@ -39,9 +39,7 @@ class TestKeyPairGeneration(unittest.TestCase):
         pub = self.keypair['pub'][0] + self.keypair['pub'][1]
         hashed_priv = [sha256(block.encode()).hexdigest() for block in priv]
         self.assertEqual(pub, hashed_priv)
-    
-    def test_test(self):
-        self.assertEqual(True, False)
+
 
 class TestSignature(unittest.TestCase):
     def setUp(self):
