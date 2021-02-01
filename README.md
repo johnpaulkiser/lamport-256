@@ -30,7 +30,7 @@ private_key = keypair.priv
 public_key = keypair.pub
 ```
 
-> _from here on out the library functions will apear as if they were imported directly e.g. `from lamport_256 import sign_message`_
+> _from here on out the library functions will appear as if they were imported directly e.g. `from lamport_256 import sign_message`_
 
 Sign a message
 ```python
@@ -75,7 +75,7 @@ Now you can run the script more concisely
 lamp generate_keys
 ```
 
-To specify where to save keys to use the apropriate options
+To specify where to save keys to use the appropriate options
 ```bash
 lamp generate_keys --priv location/to/save/key --pub location/to/save/key
 ```
