@@ -64,7 +64,7 @@ pub = parse_key('pub.key')
 _____
 ### CLI
 
-Although you can simply run `python location/to/lamport_256.py generate_keys` its best to create an alias to run the python script
+Although you can simply run `python location/to/lamport_256.py generate_keys`, it's best to create an alias to run the python script
 ```bash
 # In your .bashrc or equivalent
 alias lamp='python location/of/lamport_256.py'
