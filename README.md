@@ -43,19 +43,21 @@ if not verify_signature(public_key, 'Hello, World', signature):
     raise Exception('Invalid signature')
 ```
 
-Dump key pair to files
+Dump keys to files
 ```python
+# together
 export_key_pair(key_pair, 'pub.key', 'priv.key') #filenames can be named anything you'd like
 
-# Or individually:
+# or individually:
 export_key(key_pair.priv, 'priv.key')
 ```
 
-Read key pair from file
+Read keys from file
 ```python
+# together
 key_pair = parse_key_pair('location/of/pub.key', 'location/of/priv.key')
 
-# Or individually:
+# or individually:
 pub = parse_key('pub.key')
 ```
 
