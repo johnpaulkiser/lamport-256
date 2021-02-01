@@ -30,6 +30,8 @@ private_key = keypair.priv
 public_key = keypair.pub
 ```
 
+> _from here on out the library functions will apear as if they were imported directly e.g. `from lamport_256 import sign_message`_
+
 Sign a message
 ```python
 signature = sign_message(private_key, 'Hello, World')
