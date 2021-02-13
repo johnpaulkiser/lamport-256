@@ -70,17 +70,17 @@ Although you can simply run `python location/to/lamport_256.py generate_keys`, i
 alias lamp='python location/of/lamport_256.py'
 ```
 
-Now you can run the script more concisely.
+Now you can run the script more concisely
 ```bash
 lamp generate_keys
 ```
 
-To specify where to save keys use the appropriate options.
+To specify where to save keys use the appropriate options
 ```bash
 lamp generate_keys --priv location/to/save/key --pub location/to/save/key
 ```
 
-Sign a message.
+Sign a message
 ```bash
 lamp sign --priv location/of/private/key --msg 'Hello, world' > signature.txt
 
@@ -88,7 +88,7 @@ lamp sign --priv location/of/private/key --msg 'Hello, world' > signature.txt
 lamp sign --priv location/of/private/key --msg location/of/message > signature.txt
 ```
 
-Verify a signature.
+Verify a signature
 ```bash
 lamp verify --pub location/of/public/key --msg 'message' --sig location/of/signature 
 
