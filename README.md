@@ -1,5 +1,7 @@
-[![codecov](https://codecov.io/gh/johnpaulkiser/lamport-256/branch/main/graph/badge.svg?token=ZWIK9EVZ3N)](https://codecov.io/gh/johnpaulkiser/lamport-256)
+![codecov](https://codecov.io/gh/johnpaulkiser/lamport-256/branch/main/graph/badge.svg?token=ZWIK9EVZ3N)](https://codecov.io/gh/johnpaulkiser/lamport-256)
+
 ![tests](https://github.com/johnpaulkiser/lamport-256/workflows/tests/badge.svg)
+
 ![upload to pypi](https://github.com/johnpaulkiser/lamport-256/workflows/upload%20to%20pypi/badge.svg)
 
 # lamport-256
@@ -26,8 +28,8 @@ import lamport_256
 Generate a private/public key pair
 ```python
 key_pair = lamport_256.generate_keys()
-private_key = keypair.priv
-public_key = keypair.pub
+private_key = key_pair.priv
+public_key = key_pair.pub
 ```
 
 > _from here on out the library functions will appear as if they were imported directly e.g. `from lamport_256 import sign_message`_
@@ -82,10 +84,16 @@ lamp generate_keys --priv location/to/save/key --pub location/to/save/key
 
 Sign a message
 ```bash
-lamp sign location/of/private/key 'Hello, world' > signature.txt
+lamp sign --priv location/of/private/key --msg 'Hello, world' > signature.txt
+
+# or with pass the message in as a file
+lamp sign --priv location/of/private/key --msg location/of/message > signature.txt
 ```
 
 Verify a signature
 ```bash
-lamp verify location/of/public/key 'message' location/of/signature 
+lamp verify --pub location/of/public/key --msg 'message' --sig location/of/signature 
+
+# you can do the same with the message here.
+lamp verify --pub location/of/public/key --msg location/of/message --sig location/of/signature 
 ```
