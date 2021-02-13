@@ -1,10 +1,9 @@
+import os
 import unittest
-
-
 import lamport_256 as lamp 
 from hashlib import sha256
-import os
-
+from unittest.mock import patch
+from io import StringIO
 
 class TestKeyPairGeneration(unittest.TestCase):
 
@@ -49,24 +48,24 @@ class TestSignature(unittest.TestCase):
         msg = 'a'
         same_msg = 'a'
         signature = lamp.sign_message(self.priv, msg)
-        self.assertTrue(lamp.verify_signature(msg, signature, self.pub)) 
+        self.assertTrue(lamp.verify_signature(self.pub, msg, signature)) 
 
     def test_verify_signature_fails_on_different_message(self):
         msg = 'a'
         different_msg = 'b'
         signature = lamp.sign_message(self.priv, msg)
-        self.assertFalse(lamp.verify_signature(different_msg, signature, self.pub)) 
+        self.assertFalse(lamp.verify_signature(self.pub, different_msg, signature)) 
 
     def test_verify_signature_succeeds_on_same_key(self):
         msg = 'test message'
         signature = lamp.sign_message(self.priv, msg)
-        self.assertTrue(lamp.verify_signature(msg, signature, self.pub)) 
+        self.assertTrue(lamp.verify_signature(self.pub, msg, signature)) 
 
     def test_verify_signature_fails_on_different_fails(self):
         msg = 'test message'
         signature = lamp.sign_message(self.priv, msg)
         different_pub = lamp.generate_keys().pub
-        self.assertFalse(lamp.verify_signature(msg, signature, different_pub)) 
+        self.assertFalse(lamp.verify_signature(different_pub, msg, signature)) 
 
     def test_signature_is_256_blocks_long(self):
         msg = 'test message'
@@ -124,8 +123,98 @@ class TestUtils(unittest.TestCase):
         res = lamp.hex_to_bin_list(hexstring)
         self.assertEqual(len(res), len(hexstring)*4)
 
+    def test_parse_key_is_correct_length(self):
+        filename = 'test_priv.key'
+        lamp.export_key(self.priv, filename)
+        key = lamp.parse_key(filename)
+        self.assertEqual(len(key), 2)
+
+    def test_parse_key_zeropart_is_correct_length(self):
+        filename = 'test_priv.key'
+        lamp.export_key(self.priv, filename)
+        key = lamp.parse_key(filename)
+        self.assertEqual(len(key[0]), 256)
+
+    def test_parse_key_parts_are_same_length(self):
+        filename = 'test_priv.key'
+        lamp.export_key(self.priv, filename)
+        key = lamp.parse_key(filename)
+        self.assertEqual(len(key[0]), len(key[0]))
+
     
     
+class TestCLI(unittest.TestCase):
+
+    def tearDown(self):
+        filenames = [
+            'pub.key', 'priv.key',
+            'test_pub.key', 'test_priv.key', 
+            'test_pub_inpair.key', 'test_priv_inpair.key',
+            'test_sign.txt', 'test_msg.txt'
+        ]
+
+        for f in filenames:
+            if os.path.exists(f):
+                os.remove(f)
+
+    def test_cli_generates_keys_with_no_flag(self):
+        pub_name = 'pub.key'
+        priv_name = 'priv.key'
+        lamp.cli(['generate_keys'])
+        self.assertTrue(os.path.exists(pub_name) and os.path.exists(priv_name))
+
+    def test_cli_generates_keys_with_pub_flag(self):
+        pub_name = 'pub.key'
+        lamp.cli(['generate_keys', '--pub', pub_name])
+        self.assertTrue(os.path.exists(pub_name))
+
+    def test_cli_generates_keys_with_priv_flag(self):
+        priv_name = 'priv.key'
+        lamp.cli(['generate_keys', '--priv', priv_name])
+        self.assertTrue(os.path.exists(priv_name))
+
+    def test_cli_sign_writes_correct_signature_to_stdout(self):
+        keypair = lamp.generate_keys()
+        msg = 'hey'
+        priv_name = 'test_priv.key'
+        sig_name = 'test_sign.txt'
+        expected_sig = lamp.sign_message(keypair.priv, msg)
+        lamp.export_key(keypair.priv, priv_name)
+        with patch('sys.stdout', new = StringIO()) as fake_out:
+            lamp.cli(['sign', '--priv', priv_name, '--msg', msg]) 
+            self.assertEqual(lamp.str_to_sig(fake_out.getvalue()), expected_sig)
+
+    def test_cli_verify_signature_with_inline_msg(self):
+        keypair = lamp.generate_keys()
+        msg = 'hey'
+        pub_name = 'test_pub.key'
+        sig_name = 'test_sign.txt'
+        sig = lamp.sign_message(keypair.priv, msg)
+        lamp.export_key(keypair.pub, pub_name)
+        with open(sig_name, 'w') as f:
+            f.write(''.join(sig).strip())
+        
+        with patch('sys.stdout', new = StringIO()) as fake_out:
+            lamp.cli(['verify', '--pub', pub_name, '--msg', msg, '--sig', sig_name])
+            self.assertEqual(fake_out.getvalue().strip(), 'valid')
+
+    def test_cli_verify_signature_with_msg_from_file(self):
+        keypair = lamp.generate_keys()
+        msg = 'hey'
+        msg_name = 'test_msg.txt'
+        pub_name = 'test_pub.key'
+        sig_name = 'test_sign.txt'
+        sig = lamp.sign_message(keypair.priv, msg)
+        lamp.export_key(keypair.pub, pub_name)
+        with open(msg_name, 'w') as f:
+            f.write(msg)
+        with open(sig_name, 'w') as f:
+            f.write(''.join(sig).strip())
+        
+        with patch('sys.stdout', new = StringIO()) as fake_out:
+            lamp.cli(['verify', '--pub', pub_name, '--msg', msg_name, '--sig', sig_name])
+            self.assertEqual(fake_out.getvalue().strip(), 'valid')
+
 
 if __name__ == '__main__':
     unittest.main()

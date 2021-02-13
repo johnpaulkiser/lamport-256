@@ -1,7 +1,11 @@
 # Lamport signature implementation
 
 import secrets
+import argparse
+import sys
 from hashlib import sha256
+from unittest.mock import patch
+from io import StringIO
 
 
 class _KeyPair:
@@ -46,6 +50,10 @@ def  sign_message(priv, msg):
     """
 
     bin_msg = message_to_hashed_binary(msg) 
+
+    if len(priv[0]) != 256 and len(priv[1]) != 256:
+        raise Exception('Invalid private key length')
+
     signed_message = []
     for i, bit in enumerate(bin_msg):
         block = priv[bit][i]
@@ -54,12 +62,12 @@ def  sign_message(priv, msg):
     return signed_message
 
 
-def verify_signature(msg, sig, pubkey):
+def verify_signature(pub, msg, sig):
     bin_msg = message_to_hashed_binary(msg)
 
     for i, block in enumerate(sig):
         hashed_block = sha256(block.encode()).hexdigest()
-        if hashed_block != pubkey[bin_msg[i]][i]:
+        if hashed_block != pub[bin_msg[i]][i]:
             return False
 
     return True
@@ -92,12 +100,12 @@ def parse_key(filename):
     if len(key_str) != 2 * 64 * 256: # 2 rows, 265 blocks, 64 char long blocks. 
         raise Exception('Invalid private key length')
     
-    for i in range(128):
+    for i in range(256):
         key[0].append(key_str[start:end])
         start = end
         end += 64
         
-    for i in range(128):
+    for i in range(256):
         key[1].append(key_str[start:end])
         start = end
         end += 64
@@ -111,6 +119,15 @@ def parse_key_pair(pub_file, priv_file):
 
     return  _KeyPair(priv[0], priv[1], pub[0], pub[1])
 
+
+def str_to_sig(signature_str):
+    stripped_sig = signature_str.rstrip()
+    if len(stripped_sig) != 256 * 64:
+        raise Exception('Invalid signature length')
+    sig = []
+    for i in range(0, len(stripped_sig), 64):
+        sig.append(stripped_sig[i: i + 64])
+    return sig 
 
 def hex_to_bin_list(hex_string):
     results = []
@@ -136,22 +153,73 @@ def message_to_hashed_binary(msg):
 """  CLI functionality """
 """"""""""""""""""""""""""
 
+def cli(args):
+
+    parser = argparse.ArgumentParser(description="Command-line interface for lamport-256")
+    parser.add_argument('mode', choices=['generate_keys', 'sign', 'verify'], 
+                        help="Command to run with lamport-256")
+    parser.add_argument('--priv', type=str, metavar='', 
+            help="sign: location of private key, generate_keys: where to put key")
+    parser.add_argument('--pub', type=str, metavar='', 
+                        help="Location of private key")
+    parser.add_argument('--msg', type=str, metavar='',
+                        help="Message or message file to sign or verify")
+    parser.add_argument('--sig', type=str, metavar='',
+                        help="Location of signature to verify")
+    parser.add_argument('-v', '--verbose', action='store_true')
+
+    args = parser.parse_args(args)
+
+    if args.mode == 'generate_keys':
+        if  args.pub is None:
+            args.pub  = 'pub.key' 
+        if args.priv is None:
+            args.priv = 'priv.key' 
+        keypair = generate_keys()
+        export_key_pair(keypair, args.pub, args.priv)
+        if args.verbose:
+            sys.stdout.write('Keys written to files ' + args.pub + ' & ' + args.priv +'\n')
+
+    if args.mode == 'sign':
+        if args.msg is None:
+            parser.error('you need to attach a --msg to sign')
+        if args.priv is None:
+            parser.error('you need to attach a --priv to form a signature')
+
+        try:
+            f = open(args.msg, 'r')
+            msg = f.read().strip()
+            f.close()
+        except:
+            msg = args.msg
+
+        print(''.join(sign_message(parse_key(args.priv), msg)))
+
+    if args.mode == 'verify':
+        if args.msg is None:
+            parser.error('you need to attach a --msg to verify')
+        if args.pub is None:
+            parser.error('you need to attach a public key, using flag --pub, to verify')   
+        if args.sig is None:
+            parser.error('you need to attach a signature, using flag --sig, to verify')
+
+        try:
+            f = open(args.msg, 'r')
+            msg = f.read().strip()
+            f.close()
+        except:
+            msg = args.msg
+
+        with open(args.sig, 'r') as f:
+            sig = str_to_sig(f.read().strip())
+
+        if verify_signature(parse_key(args.pub), msg, sig):
+            print('valid')
+        else:
+            print('invalid')
+            sys.exit(1)
+
+
+            
 if __name__ == "__main__":
-
-    
-
-
-    keypair = generate_keys()
-    priv = keypair.priv
-
-
-    print(priv)
-
-    #keypair = generate_keys()
-    #keypair2 = generate_keys()
-
-    #message = 'JP'
-
-    #sig = sign_message(priv=keypair2['priv'], msg=message)
-
-    #print(verify_signature(msg='JP', sig=sig, pubkey=keypair2['pub']))
+    cli(sys.argv[1:])
