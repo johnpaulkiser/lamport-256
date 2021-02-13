@@ -1,4 +1,4 @@
-![codecov](https://codecov.io/gh/johnpaulkiser/lamport-256/branch/main/graph/badge.svg?token=ZWIK9EVZ3N)]
+![codecov](https://codecov.io/gh/johnpaulkiser/lamport-256/branch/main/graph/badge.svg?token=ZWIK9EVZ3N)
 
 ![tests](https://github.com/johnpaulkiser/lamport-256/workflows/tests/badge.svg)
 
