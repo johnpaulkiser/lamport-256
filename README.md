@@ -64,34 +64,34 @@ pub = parse_key('pub.key')
 _____
 ### CLI
 
-Although you can simply run `python location/to/lamport_256.py generate_keys`, it's best to create an alias to run the python script
+Although you can simply run `python location/to/lamport_256.py generate_keys`, it's best to create an alias to run the python script.
 ```bash
 # In your .bashrc or equivalent
 alias lamp='python location/of/lamport_256.py'
 ```
 
-Now you can run the script more concisely
+Now you can run the script more concisely.
 ```bash
 lamp generate_keys
 ```
 
-To specify where to save keys to use the appropriate options
+To specify where to save keys use the appropriate options.
 ```bash
 lamp generate_keys --priv location/to/save/key --pub location/to/save/key
 ```
 
-Sign a message
+Sign a message.
 ```bash
 lamp sign --priv location/of/private/key --msg 'Hello, world' > signature.txt
 
-# or with pass the message in as a file
+# or pass the message in as a file
 lamp sign --priv location/of/private/key --msg location/of/message > signature.txt
 ```
 
-Verify a signature
+Verify a signature.
 ```bash
 lamp verify --pub location/of/public/key --msg 'message' --sig location/of/signature 
 
-# you can do the same with the message here.
+# you can pass the message as a file here as well
 lamp verify --pub location/of/public/key --msg location/of/message --sig location/of/signature 
 ```
